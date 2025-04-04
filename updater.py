@@ -1,50 +1,35 @@
 import sys
 import time
-import shutil
 import os
 import subprocess
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: updater.py <new_exe_path> <old_exe_path>")
+    if len(sys.argv) != 2:
+        print("Usage: updater.py <new_exe_path>")
         sys.exit(1)
 
-    # Wandle die übergebenen Pfade in absolute Pfade um.
-    # Falls der neue Pfad relativ ist, wird er bezogen auf den aktuellen Arbeitsordner
+    # Absoluten Pfad der neuen Datei ermitteln
     new_exe = os.path.abspath(sys.argv[1])
-    old_exe = os.path.abspath(sys.argv[2])
+    time.sleep(2)  # Warte, bis das alte Programm beendet ist
 
-    print("New EXE:", new_exe)
-    print("Old EXE:", old_exe)
-
-    time.sleep(2)  # Warte, bis das alte Programm vollständig beendet ist
-
-    # Sichern der alten Datei
-    if os.path.exists(old_exe):
-        try:
-            os.rename(old_exe, old_exe + ".bak")
-        except OSError:
-            print(f"Fehler: Die Datei {old_exe} ist möglicherweise noch in Benutzung.")
-            time.sleep(10)
-            sys.exit(1)
-
-    try:
-        # Verschiebe die neue EXE an die Stelle der alten
-        shutil.move(new_exe, old_exe)
-        print("Update abgeschlossen. Starte das Programm neu...")
-        time.sleep(1)  # Kurze Wartezeit
-
-        # Starte die aktualisierte EXE mit dem Windows-Befehl "start", 
-        # um Probleme mit Pfaden mit Leerzeichen zu vermeiden.
-        subprocess.Popen(f'start "" "{old_exe}"', shell=True)
-    except Exception as e:
-        print("Fehler beim Aktualisieren:", e)
-        time.sleep(10)
-        if os.path.exists(old_exe + ".bak"):
-            shutil.move(old_exe + ".bak", old_exe)  # Backup wiederherstellen
+    if not os.path.exists(new_exe):
+        print("Fehler: Die neue Datei wurde nicht gefunden:", new_exe)
         sys.exit(1)
+
+    # Zielpfad: Datei umbenennen zu "updatetversion.exe" im selben Verzeichnis
+    target_exe = os.path.join(os.path.dirname(new_exe), "updatetversion.exe")
+    try:
+        os.rename(new_exe, target_exe)
+    except Exception as e:
+        print("Fehler beim Umbennen der Datei:", e)
+        sys.exit(1)
+
+    print("Update abgeschlossen. Starte die neue Version:", target_exe)
+    # Starte die neue Version über den Windows "start"-Befehl
+    subprocess.Popen(f'start "" "{target_exe}"', shell=True)
 
 if __name__ == "__main__":
     main()
+
 
 
