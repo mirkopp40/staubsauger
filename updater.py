@@ -9,13 +9,17 @@ def main():
         print("Usage: updater.py <new_exe_path> <old_exe_path>")
         sys.exit(1)
 
-    # Nutze absolute Pfade
+    # Wandle die übergebenen Pfade in absolute Pfade um.
+    # Falls der neue Pfad relativ ist, wird er bezogen auf den aktuellen Arbeitsordner
     new_exe = os.path.abspath(sys.argv[1])
     old_exe = os.path.abspath(sys.argv[2])
 
-    time.sleep(2)  # Warte, bis das alte Programm sicher beendet ist
+    print("New EXE:", new_exe)
+    print("Old EXE:", old_exe)
 
-    # Sichere die alte Datei
+    time.sleep(2)  # Warte, bis das alte Programm vollständig beendet ist
+
+    # Sichern der alten Datei
     if os.path.exists(old_exe):
         try:
             os.rename(old_exe, old_exe + ".bak")
@@ -28,21 +32,19 @@ def main():
         # Verschiebe die neue EXE an die Stelle der alten
         shutil.move(new_exe, old_exe)
         print("Update abgeschlossen. Starte das Programm neu...")
-        time.sleep(1)
-        
-        # Debug-Ausgaben
-        print(f"Starte die aktualisierte EXE: {old_exe}")
+        time.sleep(1)  # Kurze Wartezeit
 
-        # Nutze den Windows-Befehl "start" über shell=True, um die EXE zu starten.
-        # Das hilft, wenn Pfade mit Leerzeichen Probleme bereiten.
+        # Starte die aktualisierte EXE mit dem Windows-Befehl "start", 
+        # um Probleme mit Pfaden mit Leerzeichen zu vermeiden.
         subprocess.Popen(f'start "" "{old_exe}"', shell=True)
     except Exception as e:
         print("Fehler beim Aktualisieren:", e)
         time.sleep(10)
         if os.path.exists(old_exe + ".bak"):
-            shutil.move(old_exe + ".bak", old_exe)
+            shutil.move(old_exe + ".bak", old_exe)  # Backup wiederherstellen
         sys.exit(1)
 
 if __name__ == "__main__":
     main()
+
 
