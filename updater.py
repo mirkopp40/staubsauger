@@ -6,7 +6,7 @@ import time
 
 def download_new_version(url, target_path):
     try:
-        print(f"Lade neue Version herunter von {url}...")
+        print(f"Lade neue Version herunter von deiner mudda {url}...")
         response = requests.get(url)
         response.raise_for_status()  # Überprüft auf HTTP-Fehler
         with open(target_path, 'wb') as f:
