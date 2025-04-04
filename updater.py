@@ -1,32 +1,57 @@
 import sys
-import time
 import os
 import subprocess
+import requests
+import time
+
+def download_new_version(url, target_path):
+    try:
+        print(f"Lade neue Version herunter von {url}...")
+        response = requests.get(url)
+        response.raise_for_status()  # Überprüft auf HTTP-Fehler
+        with open(target_path, 'wb') as f:
+            f.write(response.content)
+        print(f"Neue Version erfolgreich heruntergeladen: {target_path}")
+    except requests.exceptions.RequestException as e:
+        print(f"Fehler beim Herunterladen der neuen Version: {e}")
+        sys.exit(1)
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: updater.py <new_exe_path>")
+    if len(sys.argv) != 3:
+        print("Usage: updater.py <exe_path> <download_url>")
         sys.exit(1)
 
-    # Absoluten Pfad der neuen Datei ermitteln
-    new_exe = os.path.abspath(sys.argv[1])
-    time.sleep(2)  # Warte, bis das alte Programm beendet ist
-
-    if not os.path.exists(new_exe):
-        print("Fehler: Die neue Datei wurde nicht gefunden:", new_exe)
+    exe_path = os.path.abspath(sys.argv[1])
+    download_url = sys.argv[2]
+    
+    # Überprüfen, ob der Update-Skript (updater.py) im gleichen Verzeichnis ist
+    updater_path = os.path.join(os.path.dirname(exe_path), "updater.py")
+    if not os.path.exists(updater_path):
+        print("Fehler: Die Datei updater.py wurde nicht gefunden.")
         sys.exit(1)
 
-    # Zielpfad: Datei umbenennen zu "updatetversion.exe" im selben Verzeichnis
-    target_exe = os.path.join(os.path.dirname(new_exe), "updatetversion.exe")
+    print("Update vorbereitet. Starte mit dem Umbenennen der alten Version...")
+    
+    # Bennen die alte .exe-Datei um
+    old_exe_path = os.path.join(os.path.dirname(exe_path), "old_exe.exe")
     try:
-        os.rename(new_exe, target_exe)
+        os.rename(exe_path, old_exe_path)
+        print(f"Alte Version umbenannt zu {old_exe_path}")
     except Exception as e:
-        print("Fehler beim Umbennen der Datei:", e)
+        print(f"Fehler beim Umbenennen der alten Datei: {e}")
         sys.exit(1)
 
-    print("Update abgeschlossen. Starte die neue Version:", target_exe)
-    # Starte die neue Version über den Windows "start"-Befehl
-    subprocess.Popen(f'start "" "{target_exe}"', shell=True)
+    # Neue Version herunterladen
+    new_exe_path = os.path.join(os.path.dirname(exe_path), "new_version.exe")
+    download_new_version(download_url, new_exe_path)
+    
+    # Starte die neue Version
+    print("Starte die neue Version...")
+    try:
+        subprocess.Popen(f'start "" "{new_exe_path}"', shell=True)
+    except Exception as e:
+        print(f"Fehler beim Starten der neuen Version: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
