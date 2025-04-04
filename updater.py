@@ -8,7 +8,7 @@ import subprocess  # Zum Starten der neuen Version
 
 def update_program():
     update_url = "https://github.com/mirkopp40/staubsauger/raw/refs/heads/main/new.exe"  # Hier den tatsächlichen Download-Link einfügen
-    download_path = "new_version.exe"  # Hier wird die neue EXE-Datei gespeichert
+    download_path = "new.exe"  # Hier wird die neue EXE-Datei gespeichert
     old_version_path = "old_version.exe"  # Der Name der alten Version, nachdem sie umbenannt wurde
 
     # Überprüfen, ob das Programm noch läuft
@@ -56,12 +56,15 @@ def update_program():
         os.rename(download_path, "new_version.exe")
         print("Die neue Version wurde erfolgreich installiert.")
         
-        # Starte die neue Version
+        # Starte die neue Version im Hintergrund und schließe das Skript
         try:
             print("Starte die neue Version...")
-            subprocess.run(["new_version.exe"], check=True)
-            sys.exit()
+            subprocess.Popen(["new_version.exe"])  # Startet die neue Version im Hintergrund
             print("Die neue Version wurde gestartet.")
+
+            # Schließe den Updater
+            sys.exit()  # Das Skript wird beendet
+
         except Exception as e:
             print(f"Fehler beim Starten der neuen Version: {e}")
     else:
