@@ -1,2 +1,2 @@
 main=1.0.9
-updater=1.0.1
+updater=1.0.0
